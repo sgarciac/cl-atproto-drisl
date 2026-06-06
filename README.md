@@ -1,22 +1,16 @@
 # cl-atproto-drisl
 
-A minimal Common Lisp implementation of DRISL serialization and deserialization for AT Protocol.
+A minimal Common Lisp implementation of the AT Protocol flavour of DRISL.
 
-DRISL is a CBOR-based serialization format used by the Bluesky AT Protocol. This library provides functions to serialize and deserialize DRISL-encoded data.
-
-## Installation
-
-This library is available via Quicklisp:
-
-```lisp
-(ql:quickload :cl-atproto-drisl)
-```
+This library provides functions to serialize and deserialize AT Protocol records.
 
 ## Dependencies
 
 - `flexi-streams` - for handling UTF-8 encoding and binary streams
 
 ## Quick Start
+
+Data is represented using the same objects as https://github.com/Zulu-Inuoe/jzon
 
 ```lisp
 (use-package :cl-atproto-drisl)
@@ -77,8 +71,8 @@ The library supports the following data types, following the conventions of [jzo
 | `HASH-TABLE` | Map (keys serialized and sorted lexicographically) |
 | `SIMPLE-ARRAY` | Array |
 | `CID` struct | CID (CBOR tag 42) |
-| `NIL` | Null |
-| `T` / `NIL` | Boolean |
+| `NIL` (null) | Null |
+| `T` / the symbol `NIL` | Boolean |
 
 ## Examples
 
