@@ -7,4 +7,4 @@
    :drisl-serialize
    :drisl-deserialize
    :drisl-serialize-to-sequence
-   :drisl-deserialize-to-sequence))
+   :drisl-deserialize-from-sequence))

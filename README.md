@@ -16,10 +16,10 @@ Data is represented using the same objects as https://github.com/Zulu-Inuoe/jzon
 (use-package :cl-atproto-drisl)
 
 ;; Serialize a string
-(drlis-serialize-to-sequence "hello")
+(drisl-serialize-to-sequence "hello")
 
 ;; Deserialize bytes back to a Lisp object
-(drlis-deserialize-from-sequence bytes)
+(drisl-deserialize-from-sequence bytes)
 ```
 
 ## API Reference
