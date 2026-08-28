@@ -43,13 +43,11 @@
 
 (in-package #:cl-atproto-drisl)
 
-
 (defconstant +cid-size+ 37)
 (defconstant +special-false+ #xf4)
 (defconstant +special-true+  #xf5)
 (defconstant +special-nil+   #xf6)
-(defconstant +cid-prefix+ #(#xD8 #x2A #x58 #x25))
-
+(defparameter *cid-prefix* #(#xD8 #x2A #x58 #x25))
 (defparameter *strict-cid-size* t)
 
 (defstruct cid
@@ -169,7 +167,7 @@
        *strict-cid-size*
        (not (= (length (cid-bytes cid)) +cid-size+)))
     (error "CID bytes must be exactly 37 bytes long, including the multibase prefix"))
-  (write-sequence +cid-prefix+ stream)
+  (write-sequence *cid-prefix* stream)
   (loop for byte across (cid-bytes cid)
         do (write-byte byte stream)))
 
@@ -242,7 +240,7 @@
       (7 ;; simple values
        (cond ((= info 20) nil)        ;; false
              ((= info 21) t)          ;; true
-             ((= info 22) nil)        ;; null
+             ((= info 22) 'NULL)        ;; null
              ((find info '(25 26 27))
               (error "atproto-flavoured drisl does not support floating point numbers")
               )
@@ -258,13 +256,13 @@
   "
   (etypecase data-item
     (NULL
-     (write-byte +special-nil+ stream))
+     (write-byte +special-false+ stream))
     (BOOLEAN
      (write-byte +special-true+ stream))
     (SYMBOL
      (case data-item
        (NULL
-        (write-byte +special-false+ stream))))
+        (write-byte +special-nil+ stream))))
     (INTEGER
      (drisl-integer stream data-item))
     ((SIMPLE-ARRAY (UNSIGNED-BYTE 8))
