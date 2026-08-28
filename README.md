@@ -45,6 +45,12 @@ Convenience function that deserializes from an octet vector.
 #### `MAKE-CID :bytes bytes`
 Creates a CID struct for representing Content Identifiers (required to be 37 bytes including the multibase prefix).
 
+#### `*STRICT-CID-SIZE*`
+Special variable that controls whether CIDs must be exactly 37 bytes (including the multibase prefix). Defaults to `T`.
+
+- When `T` (default): CIDs are validated to be exactly 37 bytes; an error is raised otherwise.
+- When `NIL`: CIDs of any length are accepted during deserialization.
+
 ### Stream-Based Operations
 
 For more control, you can work directly with streams:
