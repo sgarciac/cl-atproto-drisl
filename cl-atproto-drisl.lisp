@@ -43,10 +43,14 @@
 
 (in-package #:cl-atproto-drisl)
 
+
+(defconstant +cid-size+ 37)
 (defconstant +special-false+ #xf4)
 (defconstant +special-true+  #xf5)
 (defconstant +special-nil+   #xf6)
 (defconstant +cid-prefix+ #(#xD8 #x2A #x58 #x25))
+
+(defparameter *strict-cid-size* t)
 
 (defstruct cid
   ;; a simple array of unsigned bytes representing the CID. It *must*
@@ -160,7 +164,10 @@
       )))
 
 (defun drisl-cid (stream cid)
-  (when (not (=(length (cid-bytes cid)) 37))
+  (when
+      (and
+       *strict-cid-size*
+       (not (= (length (cid-bytes cid)) +cid-size+)))
     (error "CID bytes must be exactly 37 bytes long, including the multibase prefix"))
   (write-sequence +cid-prefix+ stream)
   (loop for byte across (cid-bytes cid)
@@ -227,13 +234,18 @@
            (error "Unsupported CBOR tag: ~A" tag))
          (let ((bytes (drisl-deserialize stream)))
            (unless (and (typep bytes '(simple-array (unsigned-byte 8) (*)))
-                        (= (length bytes) 37))
-             (error "Tag 42 (CID) payload must be a 37-byte byte string"))
+                        (or
+                         (not *strict-cid-size*)
+                         (= (length bytes) +cid-size+)))
+             (error "Tag 42 (CID) payload must be a 37-byte byte string ~A (length ~A)." (type-of bytes) (length bytes)))
            (make-cid :bytes bytes))))
       (7 ;; simple values
        (cond ((= info 20) nil)        ;; false
              ((= info 21) t)          ;; true
              ((= info 22) nil)        ;; null
+             ((find info '(25 26 27))
+              (error "atproto-flavoured drisl does not support floating point numbers")
+              )
              (t (error "Unsupported CBOR simple value: ~A" info)))))))
 
 (defun drisl-serialize (stream data-item)
@@ -257,7 +269,7 @@
      (drisl-integer stream data-item))
     ((SIMPLE-ARRAY (UNSIGNED-BYTE 8))
      (drisl-bytes stream data-item))
-    ((SIMPLE-ARRAY CHARACTER)
+    (STRING
      (drisl-string stream data-item))
     (HASH-TABLE
      (drisl-map stream data-item))
