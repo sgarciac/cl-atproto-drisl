@@ -25,6 +25,9 @@
                 (atproto-dasl-encode value)))
         data-item)
        result))
+    (STRING data-item)
+    ((SIMPLE-ARRAY (UNSIGNED-BYTE 8))
+     data-item)
     (SIMPLE-ARRAY
      (map 'vector
           (lambda (x)
@@ -53,9 +56,15 @@
                        (atproto-dasl-decode value)))
                data-item)
               result))))
+    (STRING data-item)
+    ((SIMPLE-ARRAY (UNSIGNED-BYTE 8))
+     data-item)
+
     (SIMPLE-ARRAY
      (map 'vector
           (lambda (x)
             (atproto-dasl-decode x))
           data-item))
     (T data-item)))
+
+(base64-decode "YTE")
