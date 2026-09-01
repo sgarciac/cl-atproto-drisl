@@ -6,6 +6,8 @@
    :cid
    :drisl-serialize
    :*strict-cid-size*
+   :atproto-dasl-encode
+   :atproto-dasl-decode
    :drisl-deserialize
    :drisl-serialize-to-sequence
    :drisl-deserialize-from-sequence))

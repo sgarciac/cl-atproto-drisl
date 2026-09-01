@@ -9,4 +9,6 @@
   :depends-on (#:flexi-streams)
   :components ((:file "package")
                (:file "utils")
-               (:file "cl-atproto-drisl")))
+               (:file "cl-atproto-drisl")
+               (:file "atproto-dasl")
+               ))

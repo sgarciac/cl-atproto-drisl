@@ -24,6 +24,20 @@ Data is represented using the same objects as https://github.com/Zulu-Inuoe/jzon
 
 ## API Reference
 
+### JSON Encoding
+
+#### `ATPROTO-DASL-ENCODE data-item`
+Recursively transforms a native Lisp/JZON object into DASL/ATProto format:
+- Byte arrays become `{"$bytes": "<base64-encoded>"}`
+- CID structs become `{"$link": "<base64-encoded>"}`
+- Hash-tables and arrays are recursively processed
+
+#### `ATPROTO-DASL-DECODE data-item`
+Recursively transforms a DASL/ATProto object back to native Lisp/JZON format:
+- `{"$bytes": "<base64>"}` becomes a byte array
+- `{"$link": "<bafy...>"}` becomes a CID struct
+- Hash-tables and arrays are recursively processed
+
 ### Serialization
 
 #### `DRISL-SERIALIZE stream data-item`
