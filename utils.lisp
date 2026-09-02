@@ -83,3 +83,78 @@
                (when (< (+ j 2) out-len)
                  (setf (aref out (+ j 2)) b2))))
     out))
+
+(defun base32-encode (octets)
+  "Encode OCTETS using the Base32 encoding used by CIDv1. Uses RFC 4648 Base32, lowercase, without padding. *it does NOT append the 'b'*"
+  (let* ((table "abcdefghijklmnopqrstuvwxyz234567")
+         (len (length octets))
+         ;; ceil(len * 8 / 5)
+         (out-len (ceiling (* len 8) 5))
+         (out (make-string out-len))
+         (buffer 0)
+         (bits 0)
+         (pos 0))
+
+    (loop for byte across octets
+          do
+             (setf buffer (logior (ash buffer 8) byte))
+             (incf bits 8)
+
+             (loop while (>= bits 5)
+                   do
+                      (decf bits 5)
+                      (setf (aref out pos)
+                            (aref table
+                                  (logand (ash buffer (- bits)) 31)))
+                      (incf pos)))
+
+    ;; Emit remaining bits, padded with zeroes on the right.
+    (when (> bits 0)
+      (setf (aref out pos)
+            (aref table
+                  (logand (ash buffer (- 5 bits)) 31))))
+
+    out))
+
+(defun base32-decode (string)
+  "Decode a CIDv1 Base32 string. Accepts RFC 4648 Base32 using either upper- or
+lowercase letters. CIDv1 strings normally use lowercase and omit padding. it does NOT strip the initial 'b'!"
+  (let* ((len (length string))
+         ;; floor(len * 5 / 8), since incomplete trailing bits
+         ;; do not form a byte.
+         (out-len (floor (* len 5) 8))
+         (out (make-array out-len
+                          :element-type '(unsigned-byte 8)))
+         (buffer 0)
+         (bits 0)
+         (pos 0))
+
+    (labels ((value (c)
+               (let ((c (char-downcase c)))
+                 (cond
+                   ((and (char>= c #\a)
+                         (char<= c #\z))
+                    (- (char-code c) (char-code #\a)))
+
+                   ((and (char>= c #\2)
+                         (char<= c #\7))
+                    (+ 26 (- (char-code c) (char-code #\2))))
+
+                   (t
+                    (error "Invalid CID Base32 character: ~C" c))))))
+
+      (loop for c across string
+            do
+               (setf buffer
+                     (logior (ash buffer 5)
+                             (value c)))
+               (incf bits 5)
+
+               (loop while (>= bits 8)
+                     do
+                        (decf bits 8)
+                        (setf (aref out pos)
+                              (logand (ash buffer (- bits)) 255))
+                        (incf pos))))
+
+    out))

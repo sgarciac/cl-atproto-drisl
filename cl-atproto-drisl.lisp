@@ -47,7 +47,7 @@
 (defconstant +special-false+ #xf4)
 (defconstant +special-true+  #xf5)
 (defconstant +special-nil+   #xf6)
-(defparameter *cid-prefix* #(#xD8 #x2A #x58 #x25))
+(defparameter *cid-prefix* #(#xD8 #x2A))
 (defparameter *strict-cid-size* t)
 
 (defstruct cid
@@ -168,8 +168,7 @@
        (not (= (length (cid-bytes cid)) +cid-size+)))
     (error "CID bytes must be exactly 37 bytes long, including the multibase prefix"))
   (write-sequence *cid-prefix* stream)
-  (loop for byte across (cid-bytes cid)
-        do (write-byte byte stream)))
+  (drisl-bytes stream (cid-bytes cid)))
 
 (defun read-uint-bytes (stream n)
   "Read N big-endian bytes from STREAM and return the resulting unsigned integer."
@@ -235,7 +234,7 @@
                         (or
                          (not *strict-cid-size*)
                          (= (length bytes) +cid-size+)))
-             (error "Tag 42 (CID) payload must be a 37-byte byte string ~A (length ~A)." (type-of bytes) (length bytes)))
+             (error "Tag 42 (CID) payload must be a 37-byte (including multibase prefix) byte string ~A (length ~A)." (type-of bytes) (length bytes)))
            (make-cid :bytes bytes))))
       (7 ;; simple values
        (cond ((= info 20) nil)        ;; false
