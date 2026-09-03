@@ -6,9 +6,8 @@
   :license  "GPL 3.0"
   :version "0.0.1"
   :serial t
-  :depends-on (#:flexi-streams)
+  :depends-on (#:flexi-streams #:ironclad)
   :components ((:file "package")
                (:file "utils")
                (:file "cl-atproto-drisl")
-               (:file "atproto-dasl")
-               ))
+               (:file "atproto-dasl")))

@@ -9,18 +9,19 @@
 ;;; the reverse method is also provided
 (in-package #:cl-atproto-drisl)
 
-(defun cidv1-to-string (cid-bytes)
+(defun cidv1-to-string (cid)
   (concatenate 'string
                "b"
-               (base32-encode (subseq cid-bytes 1))))
+               (base32-encode (subseq (cid-bytes cid) 1))))
 
 (defun cidv1-from-string (string)
   (unless (and (> (length string) 0)
                (char= (char-downcase (char string 0)) #\b))
     (error "Not a CIDv1 Base32 string: ~A" string))
-  (concatenate '(vector (unsigned-byte 8))
-               #(0)
-               (base32-decode (subseq string 1))))
+  (make-cid :bytes
+            (concatenate '(vector (unsigned-byte 8))
+                         #(0)
+                         (base32-decode (subseq string 1)))))
 
 (defun atproto-dasl-encode (data-item)
   "Recursively transform a 'native' lisp/jzon object into DASL/ATProto lisp/jzon."
@@ -59,7 +60,7 @@
      (cond ((gethash "$bytes" data-item)
             (base64-decode (gethash "$bytes" data-item)))
            ((gethash "$link" data-item)
-            (make-cid :bytes (cidv1-from-string (gethash "$link" data-item))))
+            (cidv1-from-string (gethash "$link" data-item)))
            (t
             (let ((result (make-hash-table :test 'equal)))
               (maphash
