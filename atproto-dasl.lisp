@@ -12,13 +12,15 @@
 (defun cidv1-to-string (cid-bytes)
   (concatenate 'string
                "b"
-               (base32-encode cid-bytes)))
+               (base32-encode (subseq cid-bytes 1))))
 
 (defun cidv1-from-string (string)
   (unless (and (> (length string) 0)
                (char= (char-downcase (char string 0)) #\b))
     (error "Not a CIDv1 Base32 string: ~A" string))
-  (base32-decode (subseq string 1)))
+  (concatenate '(vector (unsigned-byte 8))
+               #(0)
+               (base32-decode (subseq string 1))))
 
 (defun atproto-dasl-encode (data-item)
   "Recursively transform a 'native' lisp/jzon object into DASL/ATProto lisp/jzon."
