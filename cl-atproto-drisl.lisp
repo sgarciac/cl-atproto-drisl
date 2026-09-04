@@ -32,36 +32,13 @@
 
 (in-package #:cl-atproto-drisl)
 
-(defconstant +cid-size+ 37)
 (defconstant +special-false+ #xf4)
 (defconstant +special-true+  #xf5)
 (defconstant +special-nil+   #xf6)
-(defparameter *cid-prefix* #(#xD8 #x2A))
-(defparameter *strict-cid-size* t)
-
-;;; CIDs (CBOR tag 42) are represented by the CID struct defined below.
-
-;; examples:
-;;
-;; encode a CID
-;; (base64-encode
-;;  (flexi-streams:with-output-to-sequence (stream)
-;;    (drisl-serialize stream (make-cid :bytes
-;;                                      #(#x00 #x01 #x71 #x12 #x20 #x9F #xE4 #xCC #xC6 #xDE #x16 #x72 #x4F #x3A #x30 #xC7 #xE8 #xF2 #x54 #xF3 #xC6 #x47 #x19 #x86 #xAC #xB1 #xF8 #xD8 #xCF #x8E #x96 #xCE #x2A #xD7 #xDB #xE7 #xFB)))))
-(defstruct cid
-  ;; a simple array of unsigned bytes representing the CID. It *must*
-  ;;already contain the multibase prefix (a null byte)
-  bytes)
 
 ;; computes the cid object (using cidv1) for a given jzon data-item.
-;; `type` must be either :raw, :dag-cbor or :other
-(defun compute-cidv1 (data-item &key (type :dag-cbor))
-  (let* ((bytes (drisl-serialize-to-sequence data-item))
-         (typebyte (case type (:raw #x55) (:dag-cbor #x71) (:other #x51)))
-         (digest (ironclad:digest-sequence :sha256 bytes)))
-    (make-cid :bytes (concatenate '(vector (unsigned-byte 8))
-                                  (list #x0 #x1 typebyte #x12 #x20)
-                                  digest))))
+(defun drisl-cidv1 (data-item &key (type :dag-cbor))
+  (cidv1 (drisl-serialize-to-sequence data-item) :dag-cbor))
 
 ;; helper to compare sequences of bytes in a bytewise lexicographic order
 (defun bytewise-lex< (a b)

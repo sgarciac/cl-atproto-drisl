@@ -22,9 +22,16 @@ Data is represented using the same objects as https://github.com/Zulu-Inuoe/jzon
 (drisl-deserialize-from-sequence bytes)
 ```
 
+CIDs are represented using the `cid` structure, where the `bytes` field contains the binary encoding of the CID, including the null multibase prefix (0).
+
+Byte strings are represented using `(SIMPLE-ARRAY (UNSIGNED-BYTE 8))`s.
+
+
 ## API Reference
 
 ### JSON Encoding
+
+The following functions are provided to facilitate encoding and decoding from atproto-flavoured JSON.
 
 #### `ATPROTO-DASL-ENCODE data-item`
 Recursively transforms a native Lisp/JZON object into DASL/ATProto format:

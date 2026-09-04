@@ -9,5 +9,6 @@
   :depends-on (#:flexi-streams #:ironclad)
   :components ((:file "package")
                (:file "utils")
+               (:file "cid")
                (:file "cl-atproto-drisl")
                (:file "atproto-dasl")))
