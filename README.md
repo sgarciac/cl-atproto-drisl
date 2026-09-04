@@ -1,12 +1,11 @@
 # cl-atproto-drisl
 
-A minimal Common Lisp implementation of the AT Protocol flavour of DRISL.
-
-This library provides functions to serialize and deserialize AT Protocol records.
+This library provides functions to serialize and deserialize AT Protocol records to and from their CBOR representation.
 
 ## Dependencies
 
 - `flexi-streams` - for handling UTF-8 encoding and binary streams
+- `ironclad` - for computing CIDs
 
 ## Quick Start
 
@@ -24,7 +23,7 @@ Data is represented using the same objects as https://github.com/Zulu-Inuoe/jzon
 
 CIDs are represented using the `cid` structure, where the `bytes` field contains the binary encoding of the CID, including the null multibase prefix (0).
 
-Byte strings are represented using `(SIMPLE-ARRAY (UNSIGNED-BYTE 8))`s.
+Byte strings are represented using `(SIMPLE-ARRAY (UNSIGNED-BYTE 8))`.
 
 
 ## API Reference
@@ -62,6 +61,17 @@ Reads one DRISL-encoded data item from a binary stream and returns it.
 Convenience function that deserializes from an octet vector.
 
 ### CID Support
+
+#### `CIDV1 bytes type`
+Computes a CIDv1 from raw bytes. The `type` argument specifies the multicodec:
+- `:raw` - Raw data (#x55)
+- `:dag-cbor` - DAG-CBOR encoded data (#x71)
+- `:other` - Other codec (#x51)
+
+Returns a CID struct with the SHA-256 digest of the input prefixed with the CIDv1 version bytes.
+
+#### `DRISL-CIDV1 data-item &key (type :dag-cbor)`
+Convenience function that computes the CIDv1 for a serialized data item. The data item is first serialized using `drisl-serialize-to-sequence`, then its CIDv1 is computed. Defaults to `:dag-cbor` type.
 
 #### `MAKE-CID :bytes bytes`
 Creates a CID struct for representing Content Identifiers (required to be 37 bytes including the multibase prefix).
