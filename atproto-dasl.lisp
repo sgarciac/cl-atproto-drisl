@@ -39,8 +39,6 @@
         data-item)
        result))
     (STRING data-item)
-    ((SIMPLE-ARRAY (UNSIGNED-BYTE 8))
-     data-item)
     (SIMPLE-ARRAY
      (map 'vector
           (lambda (x)
